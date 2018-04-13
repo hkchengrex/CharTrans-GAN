@@ -1,0 +1,7 @@
+\backcite {Authors01}{{1}{1}{section.1}}
+\backcite {Authors02}{{1}{1.1}{subsection.1.1}}
+\backcite {Authors03}{{1}{2}{section.2}}
+\backcite {Authors04}{{1}{2}{section.2}}
+\backcite {Authors05}{{1}{2}{section.2}}
+\backcite {Authors06}{{1}{2}{section.2}}
+\backcite {Authors01}{{1}{1}{figure.1}}

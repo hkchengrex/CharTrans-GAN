@@ -1,0 +1,36 @@
+\begin{thebibliography}{1}\itemsep=-1pt
+
+\bibitem{Authors03}
+L.~A. Gatys, A.~S. Ecker, and M.~Bethge.
+\newblock A neural algorithm of artistic style.
+\newblock {\em CoRR}, abs/1508.06576, 2015.
+
+\bibitem{Authors05}
+P.~Isola, J.~Zhu, T.~Zhou, and A.~A. Efros.
+\newblock Image-to-image translation with conditional adversarial networks.
+\newblock {\em CoRR}, abs/1611.07004, 2016.
+
+\bibitem{Authors01}
+M.~Mirza and S.~Osindero.
+\newblock Conditional generative adversarial nets.
+\newblock {\em CoRR}, abs/1411.1784, 2014.
+
+\bibitem{Authors02}
+C.~L.~E. Section.
+\newblock Lexical items with eng. explanations for fundamental chin. learning
+  in hk schools.
+\newblock www.edbchinese.hk.
+
+\bibitem{Authors04}
+D.~Ulyanov, V.~Lebedev, A.~Vedaldi, and V.~S. Lempitsky.
+\newblock Texture networks: Feed-forward synthesis of textures and stylized
+  images.
+\newblock {\em CoRR}, abs/1603.03417, 2016.
+
+\bibitem{Authors06}
+J.~Zhu, T.~Park, P.~Isola, and A.~A. Efros.
+\newblock Unpaired image-to-image translation using cycle-consistent
+  adversarial networks.
+\newblock {\em CoRR}, abs/1703.10593, 2017.
+
+\end{thebibliography}
