@@ -23,17 +23,21 @@ Load pairs of font for pytorch
 """
 class FontDataset(Dataset):
 
-    def __init__(self, font_root, char_list, std_font_path, font_size, image_size, numTransform):
+    def __init__(self, font_root, char_list, std_root, font_size, image_size, numTransform, numRef):
         self.font_root = font_root
         self.font_reader_list = [FontReader(os.path.join(font_root, name), font_size, image_size)
                                  for name in os.listdir(font_root)]
 
-        self.std_reader = FontReader(std_font_path, font_size, image_size)
+        self.std_reader_list = [FontReader(os.path.join(std_root, name), font_size, image_size)
+                                 for name in os.listdir(std_root)]
+
         self.numTransform = numTransform
+
+        assert(len(self.std_reader_list) == numRef)
 
         # Remove characters that don't exist in one of the fonts
         # Using hash to approximate
-        for reader in self.font_reader_list + [self.std_reader]:
+        for reader in self.font_reader_list + self.std_reader_list:
             # Get a hash value that appears more than a certain threshold -- let's say 3
             recur_hash = 0
             hash_dict = collections.defaultdict(int)
@@ -60,27 +64,27 @@ class FontDataset(Dataset):
         char_idx = idx %  char_length
         font_idx = idx // char_length
 
-        transA = self.numTransform*[None]
+        #transA = self.numTransform*[None]
         transB = self.numTransform*[None]
         for i in range(self.numTransform):
             ref_char = random.choice(self.char_list)
             tar_char = self.char_list[char_idx]
 
             # Generate reference transform
-            transA[i] = (self.std_reader.get_image(ref_char))
+            #transA[i] = (self.std_reader_list[0].get_image(ref_char))
             transB[i] = (self.font_reader_list[font_idx].get_image(ref_char))
 
         # Generate content reference
-        conRef = self.std_reader.get_image(tar_char)
+        conRef = [x.get_image(tar_char) for x in self.std_reader_list]
         # Generate ground truth
         genGT = self.font_reader_list[font_idx].get_image(tar_char)
 
-        transA = PILGrayArrayToTensor(transA)
+        #transA = PILGrayArrayToTensor(transA)
         transB = PILGrayArrayToTensor(transB)
-        conRef = PILGrayToTensor(conRef)
+        conRef = PILGrayArrayToTensor(conRef)
         genGT = PILGrayToTensor(genGT)
 
         # numpy image: H x W x C
         # torch image: C X H X W
 
-        return transA, transB, conRef, genGT
+        return [], transB, conRef, genGT

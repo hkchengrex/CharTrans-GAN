@@ -13,7 +13,7 @@ import numpy as np
 import utils
 
 class Generator(nn.Module):
-    def __init__(self, numTransform):
+    def __init__(self, numTransform, numRef):
         """
         3 inputs - Transform: TA->TB and Reference content C
         """
@@ -22,63 +22,72 @@ class Generator(nn.Module):
         self.numTransform = numTransform
 
         self.styleExtractor = nn.Sequential(
-            nn.Conv2d(2, 32, 3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 32, 3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-
-            nn.Conv2d(32, 32, 3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 32, 3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-
-            nn.Conv2d(32, 32, 3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 1, 3, padding=1),
-        )
-
-        self.convSet1 = nn.Sequential(
             nn.Conv2d(1, 32, 3, padding=1),
             nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.Conv2d(32, 32, 3, padding=1),
             nn.BatchNorm2d(32),
-            nn.ReLU()
-        )
-        self.pool1 = nn.MaxPool2d(2, 2)
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
 
-        self.convSet2 = nn.Sequential(
-            nn.Conv2d(32, 64, 3, padding=1),
+            nn.Conv2d(32, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+
+            nn.Conv2d(32, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 8, 3, padding=1),
+        )
+
+        self.convSet1 = nn.Sequential(
+            nn.Conv2d(numRef, 64, 3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 3, padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.Conv2d(64, 64, 3, padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU()
         )
+        self.pool1 = nn.MaxPool2d(2, 2)
+
+        self.convSet2 = nn.Sequential(
+            nn.Conv2d(64, 128, 3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.Conv2d(128, 128, 3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+        )
         self.pool2 = nn.MaxPool2d(2, 2)
 
         self.convSet3 = nn.Sequential(
-            nn.Conv2d(64, 16, 3, padding=1),
-            nn.BatchNorm2d(16),
+            nn.Conv2d(128, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
             nn.ReLU()
         )
 
         self.deconvSet1 = nn.Sequential(
-            nn.ConvTranspose2d(16 + numTransform, 64, 5, 2, padding=2, output_padding=1),
+            nn.ConvTranspose2d(32 + numTransform*8, 64, 5, 2, padding=2, output_padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(),
         )
 
         #With skip connection
         self.deconvSet2 = nn.Sequential(
-            nn.Conv2d(64+64, 128, 3, padding=1),
+            nn.Conv2d(64+128, 128, 3, padding=1),
             nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.Conv2d(128, 64, 3, padding=1),
@@ -94,7 +103,10 @@ class Generator(nn.Module):
 
         #With skip connection
         self.deconvSet4 = nn.Sequential(
-            nn.Conv2d(64+32, 32, 3, padding=1),
+            nn.Conv2d(64+64, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 32, 3, padding=1),
             nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.Conv2d(32, 1, 3, padding=1),
@@ -104,7 +116,8 @@ class Generator(nn.Module):
     def forward(self, transformA, transformB, contentRef):
         styleList = [None]*self.numTransform
         for i in range(self.numTransform):
-            styleList[i] = self.styleExtractor(torch.cat([transformA[:, i:i+1, :, :], transformB[:, i:i+1, :, :]], 1))
+            #styleList[i] = self.styleExtractor(torch.cat([transformA[:, i:i+1, :, :], transformB[:, i:i+1, :, :]], 1))
+            styleList[i] = self.styleExtractor(transformB[:, i:i+1, :, :])
 
         styleTensor = torch.cat(styleList, dim=1)
 
@@ -128,11 +141,11 @@ class Discriminator(nn.Module):
     """
     3 inputs - Transform: TA->TB and something to be checked against
     """
-    def __init__(self, numTransform):
+    def __init__(self, numTransform, numRef):
         super(Discriminator, self).__init__()
 
         self.contentDiscriminator = nn.Sequential(
-            nn.Conv2d(2, 32, 4, stride=2, padding=1),
+            nn.Conv2d(1 + numRef, 32, 4, stride=2, padding=1),
             nn.BatchNorm2d(32),
             nn.LeakyReLU(0.2),
             nn.Conv2d(32, 64, 4, stride=2, padding=1),
@@ -179,15 +192,16 @@ class Net(object):
     Entire network including generator and discriminator
     """
     gpu_mode = True
-    def __init__(self, data_loader, epochs, save_epoch, model_path, numTransform):
+    def __init__(self, data_loader, epochs, save_epoch, model_path, numTransform, numRef):
         self.data_loader = data_loader
         self.epochs = epochs
         self.model_path = model_path
         self.save_epoch = save_epoch
         self.numTransform = numTransform
+        self.numRef = numRef
 
-        self.G = Generator(numTransform)
-        self.D = Discriminator(numTransform)
+        self.G = Generator(numTransform, numRef)
+        self.D = Discriminator(numTransform, numRef)
         self.G_optim = optim.SGD(self.G.parameters(), lr=1e-3, momentum=0.9)
         self.D_optim = optim.SGD(self.D.parameters(), lr=1e-3, momentum=0.9)
 
@@ -231,21 +245,19 @@ class Net(object):
                 transA, transB, reference, groundTruth = data
 
                 if self.gpu_mode:
-                    transA, transB, reference, groundTruth = Variable(transA.cuda()), \
-                                                            Variable(transB.cuda()), \
+                    transB, reference, groundTruth = Variable(transB.cuda()), \
                                                             Variable(reference.cuda()), \
                                                             Variable(groundTruth.cuda())
 
-                    D_real_vector = Variable(torch.ones(transA.shape[0], 1).cuda())
-                    D_fake_vector = Variable(torch.zeros(transA.shape[0], 1).cuda())
+                    D_real_vector = Variable(torch.ones(transB.shape[0], 1).cuda())
+                    D_fake_vector = Variable(torch.zeros(transB.shape[0], 1).cuda())
                 else:
-                    transA, transB, reference, groundTruth = Variable(transA), \
-                                                            Variable(transB), \
+                    transB, reference, groundTruth =  Variable(transB), \
                                                             Variable(reference), \
                                                             Variable(groundTruth)
 
-                    D_real_vector = Variable(torch.ones(transA.shape[0], 1))
-                    D_fake_vector = Variable(torch.zeros(transA.shape[0], 1))
+                    D_real_vector = Variable(torch.ones(transB.shape[0], 1))
+                    D_fake_vector = Variable(torch.zeros(transB.shape[0], 1))
 
                 # Train discriminator
                 self.D_optim.zero_grad()
@@ -331,30 +343,31 @@ class Net(object):
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-        image_frame_dim = int(np.floor(np.sqrt(transA.shape[0])))
+        image_frame_dim = int(np.floor(np.sqrt(transB.shape[0])))
 
         if self.gpu_mode:
-            transA = transA.cpu().data.numpy().transpose(0, 2, 3, 1)
+            #transA = transA.cpu().data.numpy().transpose(0, 2, 3, 1)
             transB = transB.cpu().data.numpy().transpose(0, 2, 3, 1)
             reference = reference.cpu().data.numpy().transpose(0, 2, 3, 1)
             groundTruth = groundTruth.cpu().data.numpy().transpose(0, 2, 3, 1)
             generated = generated.cpu().data.numpy().transpose(0, 2, 3, 1)
         else:
-            transA = transA.data.numpy().transpose(0, 2, 3, 1)
+            #transA = transA.data.numpy().transpose(0, 2, 3, 1)
             transB = transB.data.numpy().transpose(0, 2, 3, 1)
             reference = reference.data.numpy().transpose(0, 2, 3, 1)
             groundTruth = groundTruth.data.numpy().transpose(0, 2, 3, 1)
             generated = generated.data.numpy().transpose(0, 2, 3, 1)
 
         for i in range(self.numTransform):
-            utils.save_images(transA[:image_frame_dim * image_frame_dim, :, :, i:i+1], [image_frame_dim, image_frame_dim],
-                            directory + 'transA_%d.png' % i)
+            # utils.save_images(transA[:image_frame_dim * image_frame_dim, :, :, i:i+1], [image_frame_dim, image_frame_dim],
+            #                 directory + 'transA_%d.png' % i)
 
             utils.save_images(transB[:image_frame_dim * image_frame_dim, :, :, i:i+1], [image_frame_dim, image_frame_dim],
                             directory + 'transB_%d.png' % i)
 
-        utils.save_images(reference[:image_frame_dim * image_frame_dim, :, :, :], [image_frame_dim, image_frame_dim],
-                          directory + 'reference.png')
+        for i in range(self.numRef):
+            utils.save_images(reference[:image_frame_dim * image_frame_dim, :, :, i:i+1], [image_frame_dim, image_frame_dim],
+                          directory + 'reference_%d.png' % i)
         
         utils.save_images(groundTruth[:image_frame_dim * image_frame_dim, :, :, :], [image_frame_dim, image_frame_dim],
                           directory + 'groundTruth.png')
