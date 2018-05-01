@@ -13,76 +13,114 @@ import numpy as np
 import utils
 
 class Generator(nn.Module):
-    def __init__(self):
+    def __init__(self, numTransform):
         """
         3 inputs - Transform: TA->TB and Reference content C
         """
         super(Generator, self).__init__()
 
-        self.convSet1 = nn.Sequential(
-            nn.Conv2d(3, 16, 3, padding=1),
-            nn.BatchNorm2d(16),
+        self.numTransform = numTransform
+
+        self.styleExtractor = nn.Sequential(
+            nn.Conv2d(2, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
             nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=1),
-            nn.BatchNorm2d(16),
+            nn.Conv2d(32, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+
+            nn.Conv2d(32, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+
+            nn.Conv2d(32, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 1, 3, padding=1),
+        )
+
+        self.convSet1 = nn.Sequential(
+            nn.Conv2d(1, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
             nn.ReLU()
         )
-        self.pool1 = nn.MaxPool2d(2, 2, return_indices=True)
+        self.pool1 = nn.MaxPool2d(2, 2)
 
         self.convSet2 = nn.Sequential(
-            nn.Conv2d(16, 32, 3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 32, 3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU()
-        )
-        self.pool2 = nn.MaxPool2d(2, 2, return_indices=True)
-
-        self.convSet3 = nn.Sequential(
-            nn.Conv2d(32, 32, 3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU()
-        )
-
-        self.unpool1 = nn.MaxUnpool2d(2, 2)
-        #With skip connection
-        self.deconvSet1 = nn.Sequential(
-            nn.Conv2d(32+32, 64, 3, padding=1),
+            nn.Conv2d(32, 64, 3, padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(),
+            nn.Conv2d(64, 64, 3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU()
+        )
+        self.pool2 = nn.MaxPool2d(2, 2)
+
+        self.convSet3 = nn.Sequential(
             nn.Conv2d(64, 16, 3, padding=1),
             nn.BatchNorm2d(16),
             nn.ReLU()
         )
 
-        self.unpool2 = nn.MaxUnpool2d(2, 2)
-        #With skip connection
-        self.deconvSet2 = nn.Sequential(
-            nn.Conv2d(16+1, 64, 3, padding=1),
+        self.deconvSet1 = nn.Sequential(
+            nn.ConvTranspose2d(16 + numTransform, 64, 5, 2, padding=2, output_padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 1, 3, padding=1),
+        )
+
+        #With skip connection
+        self.deconvSet2 = nn.Sequential(
+            nn.Conv2d(64+64, 128, 3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.Conv2d(128, 64, 3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU()
+        )
+
+        self.deconvSet3 = nn.Sequential(
+            nn.ConvTranspose2d(64, 64, 5, 2, padding=2, output_padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+        )
+
+        #With skip connection
+        self.deconvSet4 = nn.Sequential(
+            nn.Conv2d(64+32, 32, 3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 1, 3, padding=1),
             nn.Sigmoid()
         )
 
     def forward(self, transformA, transformB, contentRef):
-        src = torch.cat([transformA, transformB, contentRef], 1)
-        x1 = self.convSet1(src)
-        x2, pool1Idx = self.pool1(x1)
+        styleList = [None]*self.numTransform
+        for i in range(self.numTransform):
+            styleList[i] = self.styleExtractor(torch.cat([transformA[:, i:i+1, :, :], transformB[:, i:i+1, :, :]], 1))
+
+        styleTensor = torch.cat(styleList, dim=1)
+
+        x1 = self.convSet1(contentRef)
+        x2 = self.pool1(x1)
         x2 = self.convSet2(x2)
-        x3, pool2Idx = self.pool2(x2)
+        x3 = self.pool2(x2)
         x3 = self.convSet3(x3)
 
-        x = self.unpool1(x3, pool2Idx)
+        x = self.deconvSet1(torch.cat([x3, styleTensor], 1))
         x = torch.cat([x, x2], 1)
-        x = self.deconvSet1(x)
-
-        x = self.unpool2(x, pool1Idx)
-        x = torch.cat([x, contentRef], 1)
         x = self.deconvSet2(x)
 
-        # print('End G F')
+        x = self.deconvSet3(x)
+        x = torch.cat([x, x1], 1)
+        x = self.deconvSet4(x)
 
         return x
 
@@ -90,7 +128,7 @@ class Discriminator(nn.Module):
     """
     3 inputs - Transform: TA->TB and something to be checked against
     """
-    def __init__(self):
+    def __init__(self, numTransform):
         super(Discriminator, self).__init__()
 
         self.contentDiscriminator = nn.Sequential(
@@ -101,22 +139,34 @@ class Discriminator(nn.Module):
             nn.BatchNorm2d(64),
             nn.LeakyReLU(0.2),
             nn.Conv2d(64, 128, 4, stride=2, padding=1),
+            nn.BatchNorm2d(128),
+            nn.LeakyReLU(0.2),
+            nn.Conv2d(128, 128, 4, stride=2, padding=1),
+            nn.BatchNorm2d(128),
+            nn.LeakyReLU(0.2),
+            nn.Conv2d(128, 128, 4, stride=2, padding=1),
             nn.Sigmoid()
         )
 
         self.styleDiscriminator = nn.Sequential(
-            nn.Conv2d(2, 32, 4, stride=2, padding=1),
+            nn.Conv2d(1 + numTransform, 32, 4, stride=2, padding=1),
             nn.BatchNorm2d(32),
             nn.LeakyReLU(0.2),
             nn.Conv2d(32, 64, 4, stride=2, padding=1),
             nn.BatchNorm2d(64),
             nn.LeakyReLU(0.2),
             nn.Conv2d(64, 128, 4, stride=2, padding=1),
+            nn.BatchNorm2d(128),
+            nn.LeakyReLU(0.2),
+            nn.Conv2d(128, 128, 4, stride=2, padding=1),
+            nn.BatchNorm2d(128),
+            nn.LeakyReLU(0.2),
+            nn.Conv2d(128, 128, 4, stride=2, padding=1),
             nn.Sigmoid()
         )
 
-    def forward(self, transformA, transformB, target):
-        contentCheck = torch.cat([transformA, target], 1)
+    def forward(self, transformA, transformB, target, reference):
+        contentCheck = torch.cat([reference, target], 1)
         styleCheck = torch.cat([transformB, target], 1)
 
         contentScore = self.contentDiscriminator(contentCheck).mean(1).mean(1).mean(1)
@@ -129,16 +179,17 @@ class Net(object):
     Entire network including generator and discriminator
     """
     gpu_mode = True
-    def __init__(self, data_loader, epochs, save_epoch, model_path):
+    def __init__(self, data_loader, epochs, save_epoch, model_path, numTransform):
         self.data_loader = data_loader
         self.epochs = epochs
         self.model_path = model_path
         self.save_epoch = save_epoch
+        self.numTransform = numTransform
 
-        self.G = Generator()
-        self.D = Discriminator()
-        self.G_optim = optim.SGD(self.G.parameters(), lr=1e-2, momentum=0.9)
-        self.D_optim = optim.SGD(self.D.parameters(), lr=1e-2, momentum=0.9)
+        self.G = Generator(numTransform)
+        self.D = Discriminator(numTransform)
+        self.G_optim = optim.SGD(self.G.parameters(), lr=1e-3, momentum=0.9)
+        self.D_optim = optim.SGD(self.D.parameters(), lr=1e-3, momentum=0.9)
 
         if self.gpu_mode:
             self.G.cuda()
@@ -200,14 +251,14 @@ class Net(object):
                 self.D_optim.zero_grad()
 
                 # Compute discriminator result in real data
-                D_real = self.D(transA, transB, groundTruth)
+                D_real = self.D(transA, transB, groundTruth, reference)
                 D_real_loss = self.BCE_loss(D_real, D_real_vector)
 
                 # Generate fake data
                 # print('Stage 01')
                 G_out = self.G(transA, transB, reference)
                 # print('Stage 02')
-                D_fake = self.D(transA, transB, G_out)
+                D_fake = self.D(transA, transB, G_out, reference)
                 # print('Stage 03')
                 D_fake_loss = self.BCE_loss(D_fake, D_fake_vector)
                 # print('Stage 04')
@@ -237,7 +288,7 @@ class Net(object):
                 # print('Stage 0')
                 G_out = self.G(transA, transB, reference)
                 # print('Stage 1')
-                D_fake = self.D(transA, transB, G_out)
+                D_fake = self.D(transA, transB, G_out, reference)
                 # print('Stage 2')
 
                 G_D_loss = self.BCE_loss(D_fake, D_real_vector)
@@ -295,11 +346,12 @@ class Net(object):
             groundTruth = groundTruth.data.numpy().transpose(0, 2, 3, 1)
             generated = generated.data.numpy().transpose(0, 2, 3, 1)
 
-        utils.save_images(transA[:image_frame_dim * image_frame_dim, :, :, :], [image_frame_dim, image_frame_dim],
-                          directory + 'transA.png')
+        for i in range(self.numTransform):
+            utils.save_images(transA[:image_frame_dim * image_frame_dim, :, :, i:i+1], [image_frame_dim, image_frame_dim],
+                            directory + 'transA_%d.png' % i)
 
-        utils.save_images(transB[:image_frame_dim * image_frame_dim, :, :, :], [image_frame_dim, image_frame_dim],
-                          directory + 'transB.png')
+            utils.save_images(transB[:image_frame_dim * image_frame_dim, :, :, i:i+1], [image_frame_dim, image_frame_dim],
+                            directory + 'transB_%d.png' % i)
 
         utils.save_images(reference[:image_frame_dim * image_frame_dim, :, :, :], [image_frame_dim, image_frame_dim],
                           directory + 'reference.png')

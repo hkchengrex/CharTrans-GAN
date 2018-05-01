@@ -9,6 +9,7 @@ font_root = './data/limited/'
 std_font = './data/standard/mingliu.TTF'
 font_size = 52
 image_size = 48
+numTransform = 5
 
 char_list_path = './character_set/character_set_1798'
 
@@ -17,12 +18,12 @@ with open(char_list_path, 'r') as char_set:
     char_list = char_set.readlines()
     char_list = [x.strip() for x in char_list] 
 
-train_batch_size = 128
+train_batch_size = 64
 
 # Create dataset and dataloader
-train_dataset = FontDataset(font_root, char_list, std_font, font_size, image_size)
+train_dataset = FontDataset(font_root, char_list, std_font, font_size, image_size, numTransform)
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=train_batch_size,
                                           shuffle=True, num_workers=2)
 
-net = Net(train_loader, 500, 10, 'model/BBResize')
+net = Net(train_loader, 500, 10, 'model/BBResize_S5T5_eN3', numTransform)
 net.train()

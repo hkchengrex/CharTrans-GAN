@@ -8,6 +8,9 @@ import random
 from font_reader import FontReader
 import collections
 
+def PILGrayArrayToTensor(PILImageList):
+    return np.concatenate([PILGrayToTensor(x) for x in PILImageList], axis=0)
+
 def PILGrayToTensor(PILImage):
     """
     Defining this myself since torch.transform is weak
@@ -20,12 +23,13 @@ Load pairs of font for pytorch
 """
 class FontDataset(Dataset):
 
-    def __init__(self, font_root, char_list, std_font_path, font_size, image_size):
+    def __init__(self, font_root, char_list, std_font_path, font_size, image_size, numTransform):
         self.font_root = font_root
         self.font_reader_list = [FontReader(os.path.join(font_root, name), font_size, image_size)
                                  for name in os.listdir(font_root)]
 
         self.std_reader = FontReader(std_font_path, font_size, image_size)
+        self.numTransform = numTransform
 
         # Remove characters that don't exist in one of the fonts
         # Using hash to approximate
@@ -56,20 +60,23 @@ class FontDataset(Dataset):
         char_idx = idx %  char_length
         font_idx = idx // char_length
 
-        ref_char = random.choice(self.char_list)
-        tar_char = self.char_list[char_idx]
+        transA = self.numTransform*[None]
+        transB = self.numTransform*[None]
+        for i in range(self.numTransform):
+            ref_char = random.choice(self.char_list)
+            tar_char = self.char_list[char_idx]
 
-        # Generate reference transform
-        transA = self.std_reader.get_image(ref_char)
-        transB = self.font_reader_list[font_idx].get_image(ref_char)
+            # Generate reference transform
+            transA[i] = (self.std_reader.get_image(ref_char))
+            transB[i] = (self.font_reader_list[font_idx].get_image(ref_char))
 
         # Generate content reference
         conRef = self.std_reader.get_image(tar_char)
         # Generate ground truth
         genGT = self.font_reader_list[font_idx].get_image(tar_char)
 
-        transA = PILGrayToTensor(transA)
-        transB = PILGrayToTensor(transB)
+        transA = PILGrayArrayToTensor(transA)
+        transB = PILGrayArrayToTensor(transB)
         conRef = PILGrayToTensor(conRef)
         genGT = PILGrayToTensor(genGT)
 
