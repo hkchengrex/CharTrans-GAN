@@ -1,0 +1,52 @@
+This is BibTeX, Version 0.99d (TeX Live 2015/Debian)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: egpaper_final.aux
+The style file: ieee.bst
+Database file #1: egbib.bib
+Warning--to sort, need author or key in zi2zi
+Warning--empty author in zi2zi
+Warning--empty year in zi2zi
+Warning--empty journal in Authors02
+Warning--empty year in Authors02
+You've used 13 entries,
+            2120 wiz_defined-function locations,
+            565 strings with 5993 characters,
+and the built_in function-call counts, 3578 in all, are:
+= -- 330
+> -- 231
+< -- 0
++ -- 92
+- -- 78
+* -- 244
+:= -- 672
+add.period$ -- 38
+call.type$ -- 13
+change.case$ -- 78
+chr.to.int$ -- 0
+cite$ -- 18
+duplicate$ -- 130
+empty$ -- 223
+format.name$ -- 78
+if$ -- 695
+int.to.chr$ -- 0
+int.to.str$ -- 13
+missing$ -- 13
+newline$ -- 67
+num.names$ -- 24
+pop$ -- 62
+preamble$ -- 1
+purify$ -- 65
+quote$ -- 0
+skip$ -- 100
+stack$ -- 0
+substring$ -- 66
+swap$ -- 12
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 52
+warning$ -- 5
+while$ -- 24
+width$ -- 15
+write$ -- 139
+(There were 5 warnings)
