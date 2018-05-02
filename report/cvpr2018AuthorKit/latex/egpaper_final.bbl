@@ -1,29 +1,68 @@
-\begin{thebibliography}{1}\itemsep=-1pt
+\begin{thebibliography}{10}\itemsep=-1pt
 
-\bibitem{Alpher02}
-A.~Alpher.
-\newblock Frobnication.
-\newblock {\em Journal of Foo}, 12(1):234--778, 2002.
+\bibitem{Authors03}
+L.~A. Gatys, A.~S. Ecker, and M.~Bethge.
+\newblock A neural algorithm of artistic style.
+\newblock {\em CoRR}, abs/1508.06576, 2015.
 
-\bibitem{Alpher03}
-A.~Alpher and J.~P.~N. Fotheringham-Smythe.
-\newblock Frobnication revisited.
-\newblock {\em Journal of Foo}, 13(1):234--778, 2003.
+\bibitem{DBLP:journals/corr/IsolaZZE16}
+P.~Isola, J.~Zhu, T.~Zhou, and A.~A. Efros.
+\newblock Image-to-image translation with conditional adversarial networks.
+\newblock {\em CoRR}, abs/1611.07004, 2016.
 
-\bibitem{Alpher04}
-A.~Alpher, J.~P.~N. Fotheringham-Smythe, and G.~Gamow.
-\newblock Can a machine frobnicate?
-\newblock {\em Journal of Foo}, 14(1):234--778, 2004.
+\bibitem{DBLP:journals/corr/JohnsonAL16}
+J.~Johnson, A.~Alahi, and F.~Li.
+\newblock Perceptual losses for real-time style transfer and super-resolution.
+\newblock {\em CoRR}, abs/1603.08155, 2016.
 
-\bibitem{Authors14}
-Authors.
-\newblock The frobnicatable foo filter, 2014.
-\newblock Face and Gesture submission ID 324. Supplied as additional material
-  {\tt fg324.pdf}.
+\bibitem{DBLP:journals/corr/LyuBYZHL17}
+P.~Lyu, X.~Bai, C.~Yao, Z.~Zhu, T.~Huang, and W.~Liu.
+\newblock Auto-encoder guided {GAN} for chinese calligraphy synthesis.
+\newblock {\em CoRR}, abs/1706.08789, 2017.
 
-\bibitem{Authors14b}
-Authors.
-\newblock Frobnication tutorial, 2014.
-\newblock Supplied as additional material {\tt tr.pdf}.
+\bibitem{Authors01}
+M.~Mirza and S.~Osindero.
+\newblock Conditional generative adversarial nets.
+\newblock {\em CoRR}, abs/1411.1784, 2014.
+
+\bibitem{DBLP:journals/corr/RadfordMC15}
+A.~Radford, L.~Metz, and S.~Chintala.
+\newblock Unsupervised representation learning with deep convolutional
+  generative adversarial networks.
+\newblock {\em CoRR}, abs/1511.06434, 2015.
+
+\bibitem{DBLP:journals/corr/RonnebergerFB15}
+O.~Ronneberger, P.~Fischer, and T.~Brox.
+\newblock U-net: Convolutional networks for biomedical image segmentation.
+\newblock {\em CoRR}, abs/1505.04597, 2015.
+
+\bibitem{Authors02}
+C.~L.~E. Section.
+\newblock Lexical items with eng. explanations for fundamental chin. learning
+  in hk schools.
+\newblock www.edbchinese.hk.
+
+\bibitem{Authors04}
+D.~Ulyanov, V.~Lebedev, A.~Vedaldi, and V.~S. Lempitsky.
+\newblock Texture networks: Feed-forward synthesis of textures and stylized
+  images.
+\newblock {\em CoRR}, abs/1603.03417, 2016.
+
+\bibitem{DBLP:journals/corr/UpchurchSB16}
+P.~Upchurch, N.~Snavely, and K.~Bala.
+\newblock From {A} to {Z:} supervised transfer of style and content using deep
+  neural network generators.
+\newblock {\em CoRR}, abs/1603.02003, 2016.
+
+\bibitem{DBLP:journals/corr/abs-1711-06454}
+Y.~Zhang, W.~Cai, and Y.~Zhang.
+\newblock Separating style and content for generalized style transfer.
+\newblock {\em CoRR}, abs/1711.06454, 2017.
+
+\bibitem{DBLP:journals/corr/ZhuPIE17}
+J.~Zhu, T.~Park, P.~Isola, and A.~A. Efros.
+\newblock Unpaired image-to-image translation using cycle-consistent
+  adversarial networks.
+\newblock {\em CoRR}, abs/1703.10593, 2017.
 
 \end{thebibliography}
