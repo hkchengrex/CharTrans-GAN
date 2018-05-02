@@ -1,0 +1,250 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Include other packages here, before hyperref.
+
+% If you comment hyperref and then uncomment it, you should delete
+% egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
+% run, let it finish, and you should be clear).
+\usepackage[breaklinks=true,bookmarks=false,draft]{hyperref}
+
+\cvprfinalcopy % *** Uncomment this line for the final submission
+
+\def\cvprPaperID{----} % *** Enter the CVPR Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+%\ifcvprfinal\pagestyle{empty}\fi
+\setcounter{page}{1}
+\begin{document}
+
+%%%%%%%%% TITLE
+\title{\LaTeX\ Chinese Character Style Transfer with conditional GAN}
+
+\author{Ho Kei Cheng\\
+Hong Kong University of Science and Technology\\
+{\tt\small hkchengad@connect.ust.hk}
+}
+
+\maketitle
+%\thispagestyle{empty}
+
+%%%%%%%%% ABSTRACT
+\begin{abstract}
+	Image generation and style transfer have became a hot topic in research. 
+	Generative Adversarial Networks (GANs) have been used to solve a lot of image generation
+	problems. We here present an attempt at using GANs to perform style transfer by formulating
+	it as an image generation problem on Chinese characters. Unlike most previous works, 
+	our method does not focus on a singleton image transform. It learns how to transform an image
+	to a unseen style by looking at font samples from the new style. Thus, no re-training is required
+	to deal with novel fonts.
+\end{abstract}
+
+%%%%%%%%% BODY TEXT
+\section{Introduction}
+The advancement of deep convolutional neural networks (DCNNs) has enabled computers
+to better understand images at different abstraction levels. 
+They are able to transfer the low level features like storkes and color
+from an image to another, or even to generate images based on description.
+Eariler studies on neural style transfer tries to minimize the difference 
+between both the style and content of the source and target images using 
+features from DCNN. 
+
+Recently, Generative Adversarial Networks (GANs) have also been used on
+style transfer and image generation problems and have achieved success. GANs include both a generator and a discriminator. By imposing an additional discriminator as a guidance to the generator, GANs tend to generate more realistic images.
+
+In this paper, we propose a style transfer GAN that can be used on multiple, unseen styles and content. The network is designed to extract content information and style information separately early on and combine them at a later stage. 
+
+We focus on style transfer for Chinese fonts. Traditionally it is difficult to design new Chinese fonts as there are more than 4,000 commonly used Chinese characters and all of them have to be designed manually. Our method aims to automatically generate the entire character set including thousands of characters given a few style references.
+
+GANs include a generator 
+and a discriminator having the objective function
+\begin{align*}
+\mathcal{L}_{GAN}(G, D)=&\mathbb{E}_{y}[\log(D(y))] +  \\&\mathbb{E}_{x,z}[\log(1-D(G(x,z))))]
+\end{align*}
+where the generator $G$ tries to minimize this objective while $D$ tries to maximize it.
+
+
+\begin{figure}[t]
+\begin{center}
+\fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
+   %\includegraphics[width=0.8\linewidth]{egfigure.eps}
+\end{center}
+   \caption{Example of caption.  It is set in Roman so that mathematics
+   (always set in Roman: $B \sin A = A \sin B$) may be included without an
+   ugly clash.}
+\label{fig:long}
+\label{fig:onecol}
+\end{figure}
+
+\begin{figure*}
+\begin{center}
+\fbox{\rule{0pt}{2in} \rule{.9\linewidth}{0pt}}
+\end{center}
+   \caption{Example of a short caption, which should be centered.}
+\label{fig:short}
+\end{figure*}
+
+%------------------------------------------------------------------------
+\section{Related Work}
+
+\subsection{Image translation}
+Image-to-image translation learns from paired images and attempts to establish the transformation from one image domain to another. It includes generating color images from grayscale images or converting day scene to night scene. Previous work like conditional GAN (cGAN), pix2pix and cycle-consistent adversarial network (CycleGAN) have shown appealing results in image translation. However, all of them are fixed to learn only one transformation at a time. To perform a new transform, the network must be retrained.
+
+\subsection{Font Style Transfer}
+A number of previous works have also studied the character style transfer process. "From A to Z" perform style transfer on English characters using variational autoencoder (VAE). A online project zi2zi borrows idea from pix2pix, using GAN with encoder-decoder and the U-net structure in the generator to perform font generation in a latent space created by some fixed font styles. Another work AEGN also uses GAN to generate calligraphy using a standard font directly. A more recent and aligned work is the EMD model, which separate the content and style representation using two distinct encoders. 
+
+%-------------------------------------------------------------------------
+\subsection{Margins and page numbering}
+
+All printed material, including text, illustrations, and charts, must be kept
+within a print area 6-7/8 inches (17.5 cm) wide by 8-7/8 inches (22.54 cm)
+high.
+Page numbers should be in footer with page numbers, centered and .75
+inches from the bottom of the page and make it start at the correct page
+number rather than the 4321 in the example.  To do this fine the line (around
+line 23)
+\begin{verbatim}
+%\ifcvprfinal\pagestyle{empty}\fi
+\setcounter{page}{4321}
+\end{verbatim}
+where the number 4321 is your assigned starting page.
+
+Make sure the first page is numbered by commenting out the first page being
+empty on line 46
+\begin{verbatim}
+%\thispagestyle{empty}
+\end{verbatim}
+
+
+%-------------------------------------------------------------------------
+\subsection{Type-style and fonts}
+
+Wherever Times is specified, Times Roman may also be used. If neither is
+available on your word processor, please use the font closest in
+appearance to Times to which you have access.
+
+MAIN TITLE. Center the title 1-3/8 inches (3.49 cm) from the top edge of
+the first page. The title should be in Times 14-point, boldface type.
+Capitalize the first letter of nouns, pronouns, verbs, adjectives, and
+adverbs; do not capitalize articles, coordinate conjunctions, or
+prepositions (unless the title begins with such a word). Leave two blank
+lines after the title.
+
+AUTHOR NAME(s) and AFFILIATION(s) are to be centered beneath the title
+and printed in Times 12-point, non-boldface type. This information is to
+be followed by two blank lines.
+
+The ABSTRACT and MAIN TEXT are to be in a two-column format.
+
+MAIN TEXT. Type main text in 10-point Times, single-spaced. Do NOT use
+double-spacing. All paragraphs should be indented 1 pica (approx. 1/6
+inch or 0.422 cm). Make sure your text is fully justified---that is,
+flush left and flush right. Please do not place any additional blank
+lines between paragraphs.
+
+Figure and table captions should be 9-point Roman type as in
+Figures~\ref{fig:onecol} and~\ref{fig:short}.  Short captions should be centred.
+
+\noindent Callouts should be 9-point Helvetica, non-boldface type.
+Initially capitalize only the first word of section titles and first-,
+second-, and third-order headings.
+
+FIRST-ORDER HEADINGS. (For example, {\large \bf 1. Introduction})
+should be Times 12-point boldface, initially capitalized, flush left,
+with one blank line before, and one blank line after.
+
+SECOND-ORDER HEADINGS. (For example, { \bf 1.1. Database elements})
+should be Times 11-point boldface, initially capitalized, flush left,
+with one blank line before, and one after. If you require a third-order
+heading (we discourage it), use 10-point Times, boldface, initially
+capitalized, flush left, preceded by one blank line, followed by a period
+and your text on the same line.
+
+%-------------------------------------------------------------------------
+\subsection{Footnotes}
+
+Please use footnotes\footnote {This is what a footnote looks like.  It
+often distracts the reader from the main flow of the argument.} sparingly.
+Indeed, try to avoid footnotes altogether and include necessary peripheral
+observations in
+the text (within parentheses, if you prefer, as in this sentence).  If you
+wish to use a footnote, place it at the bottom of the column on the page on
+which it is referenced. Use Times 8-point type, single-spaced.
+
+
+%-------------------------------------------------------------------------
+\subsection{References}
+
+List and number all bibliographical references in 9-point Times,
+single-spaced, at the end of your paper. When referenced in the text,
+enclose the citation number in square brackets, for
+example~\cite{Authors14}.  Where appropriate, include the name(s) of
+editors of referenced books.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|c|}
+\hline
+Method & Frobnability \\
+\hline\hline
+Theirs & Frumpy \\
+Yours & Frobbly \\
+Ours & Makes one's heart Frob\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Results.   Ours is better.}
+\end{table}
+
+%-------------------------------------------------------------------------
+\subsection{Illustrations, graphs, and photographs}
+
+All graphics should be centered.  Please ensure that any point you wish to
+make is resolvable in a printed copy of the paper.  Resize fonts in figures
+to match the font in the body text, and choose line widths which render
+effectively in print.  Many readers (and reviewers), even of an electronic
+copy, will choose to print your paper in order to read it.  You cannot
+insist that they do otherwise, and therefore must not assume that they can
+zoom in to see tiny details on a graphic.
+
+When placing figures in \LaTeX, it's almost always best to use
+\verb+\includegraphics+, and to specify the  figure width as a multiple of
+the line width as in the example below
+{\small\begin{verbatim}
+   \usepackage[dvips]{graphicx} ...
+   \includegraphics[width=0.8\linewidth]
+                   {myfile.eps}
+\end{verbatim}
+}
+
+
+%-------------------------------------------------------------------------
+\subsection{Color}
+
+Please refer to the author guidelines on the CVPR 2018 web page for a discussion
+of the use of color in your document.
+
+%------------------------------------------------------------------------
+\section{Final copy}
+
+You must include your signed IEEE copyright release form when you submit
+your finished paper. We MUST have this form before your paper can be
+published in the proceedings.
+
+Please direct any questions to the production editor in charge of these
+proceedings at the IEEE Computer Society Press: Phone (714) 821-8380, or
+Fax (714) 761-1784.
+
+{\small
+\bibliographystyle{ieee}
+\bibliography{egbib}
+}
+
+\end{document}

@@ -267,48 +267,31 @@ class Net(object):
                 D_real_loss = self.BCE_loss(D_real, D_real_vector)
 
                 # Generate fake data
-                # print('Stage 01')
                 G_out = self.G(transA, transB, reference)
-                # print('Stage 02')
                 D_fake = self.D(transA, transB, G_out, reference)
-                # print('Stage 03')
                 D_fake_loss = self.BCE_loss(D_fake, D_fake_vector)
-                # print('Stage 04')
 
                 D_loss = D_real_loss + D_fake_loss
-                # print('Stage 05')
                 
                 # Log result for D
                 # self.log_D_real_loss.add_record(running_idx, torch.sum(D_real_loss, 0))
-                # print('Stage 06')
                 # self.log_D_fake_loss.add_record(running_idx, torch.sum(D_fake_loss, 0))
-                # print('Stage 07')
                 # self.log_D_total_loss.add_record(running_idx, torch.sum(D_loss, 0))
-                # print('Stage 08')
 
                 # Update D's parameter
                 D_loss.backward()
-                # print('Stage 09')
                 self.D_optim.step()
-                # print('Stage 10')
 
                 # Train Generator
                 self.G_optim.zero_grad()
-                # print('Stage 11')
                 
                 # Compute Generator result
-                # print('Stage 0')
                 G_out = self.G(transA, transB, reference)
-                # print('Stage 1')
                 D_fake = self.D(transA, transB, G_out, reference)
-                # print('Stage 2')
 
                 G_D_loss = self.BCE_loss(D_fake, D_real_vector)
-                # print('Stage 3')
                 G_L1_loss = self.L1_Loss(G_out, groundTruth)
-                # print('Stage 4')
                 G_loss = G_D_loss + G_L1_loss
-                # print('Stage 5')
 
                 num_D_fake = D_fake_loss.mean()
                 num_D_real = D_real_loss.mean()
@@ -335,6 +318,28 @@ class Net(object):
             print('Epoch takes: %f' % (time.time() - epoch_start_time))
             if ((epoch+1) % self.save_epoch == 0):
                 self.save(epoch)
+
+    def generateOne(self):
+        for i, data in enumerate(self.data_loader, 0):
+            transA, transB, reference, groundTruth = data
+
+            if self.gpu_mode:
+                transB, reference, groundTruth = Variable(transB.cuda()), \
+                                                        Variable(reference.cuda()), \
+                                                        Variable(groundTruth.cuda())
+            else:
+                transB, reference, groundTruth =  Variable(transB), \
+                                                        Variable(reference), \
+                                                        Variable(groundTruth)
+
+
+            # Train Generator
+            self.G_optim.zero_grad()
+            
+            # Compute Generator result
+            G_out = self.G(transA, transB, reference)
+
+            self.visualize_results(-1, transA, transB, reference, groundTruth, G_out)
 
     def visualize_results(self, epoch, transA, transB, reference, groundTruth, generated):
         self.G.eval()

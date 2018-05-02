@@ -23,7 +23,7 @@ Load pairs of font for pytorch
 """
 class FontDataset(Dataset):
 
-    def __init__(self, font_root, char_list, std_root, font_size, image_size, numTransform, numRef):
+    def __init__(self, font_root, char_list, std_root, font_size, image_size, numTransform, numRef, forceChar=None):
         self.font_root = font_root
         self.font_reader_list = [FontReader(os.path.join(font_root, name), font_size, image_size)
                                  for name in os.listdir(font_root)]
@@ -32,6 +32,7 @@ class FontDataset(Dataset):
                                  for name in os.listdir(std_root)]
 
         self.numTransform = numTransform
+        self.forceChar = forceChar
 
         assert(len(self.std_reader_list) == numRef)
 
@@ -56,6 +57,8 @@ class FontDataset(Dataset):
         self.char_list = char_list
 
     def __len__(self):
+        if self.forceChar is not None:
+            return 1
         return len(self.font_reader_list) * len(self.char_list)
 
     def __getitem__(self, idx):
@@ -65,10 +68,13 @@ class FontDataset(Dataset):
         font_idx = idx // char_length
 
         #transA = self.numTransform*[None]
+        if self.forceChar is None:
+            tar_char = self.char_list[char_idx]
+        else:
+            tar_char = self.forceChar
         transB = self.numTransform*[None]
         for i in range(self.numTransform):
             ref_char = random.choice(self.char_list)
-            tar_char = self.char_list[char_idx]
 
             # Generate reference transform
             #transA[i] = (self.std_reader_list[0].get_image(ref_char))
