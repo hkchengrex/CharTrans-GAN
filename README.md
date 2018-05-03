@@ -1,5 +1,5 @@
 # CharTrans-GAN
-Use GAN to perform style transfer of Chinese characters.
+An optional course project for COMP5421 Spring 2018. Uses GAN to perform style transfer of Chinese characters.
 
 *BAD CODE WARNING:* Rushed this project in a short time. Quite naïve and simple. My GPU has been working 24-7 but still I didn't get to try much, so don't actually trust the things I said.
 
