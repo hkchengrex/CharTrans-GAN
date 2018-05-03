@@ -75,7 +75,7 @@ We focus on style transfer for Chinese fonts. Traditionally it is difficult to d
 Image-to-image translation learns from paired images and attempts to establish the transformation from one image domain to another. It includes generating color images from grayscale images or converting day scene to night scene. Previous work like conditional GAN (cGAN) \cite{Authors01}, pix2pix\cite{DBLP:journals/corr/IsolaZZE16} and cycle-consistent adversarial network (CycleGAN)\cite{DBLP:journals/corr/ZhuPIE17} have shown appealing results in image translation. However, all of them are fixed to learn only one transformation at a time. To perform a new transform, the network must be retrained.
 
 \subsection{Font Style Transfer}
-A number of previous works have also studied the character style transfer process. "From A to Z" perform style transfer on English characters using variational autoencoder (VAE) \cite{DBLP:journals/corr/UpchurchSB16}. A online project zi2zi\cite{zi2zi} borrows idea from pix2pix, using GAN with encoder-decoder and the U-net structure in the generator to perform font generation in a latent space created by some fixed font styles. Another work AEGN also uses GAN to generate calligraphy using a standard font directly \cite{DBLP:journals/corr/LyuBYZHL17}. A more recent and aligned work is the EMD model, which separate the content and style representation using two distinct encoders \cite{DBLP:journals/corr/abs-1711-06454}. 
+A number of previous works have also studied the character style transfer process. "From A to Z" perform style transfer on English characters using variational autoencoder (VAE) \cite{DBLP:journals/corr/UpchurchSB16}. A online project zi2zi\cite{zi2zi} borrows idea from pix2pix, using GAN with encoder-decoder and the U-net structure in the generator to perform font generation in a latent space created by some fixed font styles. Another work AEGN also uses GAN to generate calligraphy using a standard font directly \cite{DBLP:journals/corr/LyuBYZHL17}. A more recent and aligned work is the EMD model, which separates the content and style representation using two distinct encoders \cite{DBLP:journals/corr/abs-1711-06454}. 
 
 
 %------------------------------------------------------------------------
@@ -110,7 +110,7 @@ Both the \textit{Style Encoder} and \textit{Context Encoder} consist of layers o
 \subsubsection{Decoder}
 To enchance the quaility of generated images, transposed convolutions (also known as deconvolution) are used to upsample the encoded context and style reference, as suggested by DCGAN\cite{DBLP:journals/corr/RadfordMC15}. The decoder network is a transposed version of the encoder, except that transposed convolution with input padding of 2 and output padding of 1 has replaced max-poolings.
 
-There are U-Net\cite{DBLP:journals/corr/RonnebergerFB15} like structure which connect the encoder and decoder together with skip-connection to preverse some of the lost information in max-pooling.
+There is U-Net\cite{DBLP:journals/corr/RonnebergerFB15} like structure which connects the encoder and decoder together with skip-connection to preverse some of the lost information in max-pooling.
 
 \subsection{Discriminator}
 There are two small networks in the discriminator. They are the  \textit{Context Discriminator} and \textit{Style Discriminator} respectively. The context discriminator takes the image-to-be tested with the context reference to determine its realness in terms of context. The style discriminator take the style reference instead, and compare realness in terms of style. Their results are averaged to obtain overall discriminator score.
@@ -118,13 +118,13 @@ There are two small networks in the discriminator. They are the  \textit{Context
 \subsection{Losses}
 We have used the binary cross entropy loss to update the discriminator, guiding it to output 1 for ground truth images and 0 for generated images. 
 
-For the generator, both binary cross entropy loss and L1 loss is used as suggested by pix2pix. The binary cross entropy loss guides the generator to output images that the discriminator will give high score, i.e. to fool the discriminator. The L1 loss compare the generator's output and the ground truth image.
+For the generator, both binary cross entropy loss and L1 loss are used as suggested by pix2pix. The binary cross entropy loss guides the generator to output images that the discriminator will give high score, i.e. to fool the discriminator. The L1 loss compares the generator's output with the ground truth image.
 
 \section{Result}
 The network can successfully generate readable characters that have similar low-level features as ground truths. However, there are a few issues:
 
 \begin{enumerate}
-	\item Thins stroke might be missing.
+	\item Thin strokes might be missing.
 	\item The generated image looks "dirty", i.e. has noises.
 	\item It failed to learn high level features like spacing between strokes.
 \end{enumerate}
@@ -155,7 +155,7 @@ The network can successfully generate readable characters that have similar low-
 \section{Implementation and data}
 The model is implementated with PyTorch. It is trained with SGD with learning rate $0.001$, momentum of $0.9$ and batch size $64$ for 400 epochs. The training took 15 hours on a GTX970.
 
-31 fonts are obtained onlined. 23 of them are used in style reference training, 5 of them used as context reference and the rest act as test set. 1702 commonly used Chinese characters are picked to be used in training.
+31 fonts are obtained online. 23 of them are used in style reference training, 5 of them used as context reference and the rest act as test set. 1702 commonly used Chinese characters are picked to be used in training.
 
 Note that different fonts can have significant difference in size and position even when the same font size and origin is used. Preprocessing is done so that the bounding box of each character aligns.
 
